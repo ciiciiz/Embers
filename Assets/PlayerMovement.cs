@@ -5,7 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     private float horizontal;
     private float speed = 8f;
-    private float jumpingPower = 8f;
+    private float jumpingPower = 8.5f;
     private bool isFacingRight = true;
 
     [SerializeField] private Rigidbody2D rb;
@@ -18,12 +18,12 @@ public class PlayerMovement : MonoBehaviour
         horizontal = Input.GetAxisRaw("Horizontal");
         Flip();
 
-        if (Input.GetButtonDown("Jump") && isGrounded())
+        if (Input.GetButtonDown("Jump") && isGrounded())//jump
         {
             rb.linearVelocityY = jumpingPower;
         }
 
-        if (Input.GetButtonUp("Jump") && rb.linearVelocityY > 0f)
+        if (Input.GetButtonUp("Jump") && rb.linearVelocityY > 0f)//jump- but depending on how long space is pressed
         {
             rb.linearVelocityY *= 0.5f;
         }
@@ -32,9 +32,10 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         rb.linearVelocity = new Vector2(horizontal * speed, rb.linearVelocity.y);
+
     }
 
-    private void Flip()
+    private void Flip()//changes direction of sprite
     {
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
