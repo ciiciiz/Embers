@@ -65,6 +65,10 @@ public class PlayerMovement : MonoBehaviour
         {
             transform.position = new Vector3(44, -22, 0);
         }
+        if (Input.GetButtonDown("4"))
+        {
+            transform.position = new Vector3(70, 13, 0);
+        }
 
     }
 
