@@ -59,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
         }
         if (Input.GetButtonDown("2"))
         {
-            transform.position = new Vector3(-5, -34, 0);
+            transform.position = new Vector3(-3, -34, 0);
         }
         if (Input.GetButtonDown("3"))
         {
@@ -68,6 +68,10 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetButtonDown("4"))
         {
             transform.position = new Vector3(70, 13, 0);
+        }
+        if (Input.GetButtonDown("5"))
+        {
+            transform.position = new Vector3(-42, -14, 0);
         }
 
     }
