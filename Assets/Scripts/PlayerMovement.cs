@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using static UnityEngine.ParticleSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -19,10 +20,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private TrailRenderer tr;
+    [SerializeField] private ParticleSystem embers;
+
 
     // Update is called once per frame
     void Update()
     {
+    
         if (isDashing)
         {
             return;
@@ -88,13 +92,28 @@ public class PlayerMovement : MonoBehaviour
 
     private void Flip()//changes direction of sprite
     {
+       
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
             isFacingRight = !isFacingRight;
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
+            if(isFacingRight){
+                embers.transform.rotation = Quaternion.Euler(0,0,0);
+            }
+            else if (!isFacingRight)
+            {
+                embers.transform.rotation = Quaternion.Euler(0, 0, 180);   
+            }
+            
+            //turn on particle emission
         }
+        else
+        {
+            //turn off particle emission
+        }
+
     }
 
     private bool isGrounded()
