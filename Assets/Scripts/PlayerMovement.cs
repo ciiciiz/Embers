@@ -21,12 +21,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private TrailRenderer tr;
     [SerializeField] private ParticleSystem embers;
-
+    
 
     // Update is called once per frame
     void Update()
     {
-    
         if (isDashing)
         {
             return;
@@ -34,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
 
         horizontal = Input.GetAxisRaw("Horizontal");
         Flip();
+        EmitEmbers();
 
         //jump
         if (Input.GetButtonDown("Jump") && isGrounded())//normal jump
@@ -44,6 +44,7 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.linearVelocityY *= 0.5f;
         }
+
         //fall quicker
         if (rb.linearVelocityY < 0f && rb.linearVelocityY > -9f)
         {
@@ -92,28 +93,50 @@ public class PlayerMovement : MonoBehaviour
 
     private void Flip()//changes direction of sprite
     {
-       
+        
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
             isFacingRight = !isFacingRight;
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
-            if(isFacingRight){
-                embers.transform.rotation = Quaternion.Euler(0,0,0);
+
+            //rotation of the embers particle when flipping sprite
+            if (isFacingRight){
+                embers.transform.rotation = Quaternion.Euler(0,0,-20);
+                
             }
-            else if (!isFacingRight)
+            if (!isFacingRight)
             {
-                embers.transform.rotation = Quaternion.Euler(0, 0, 180);   
+                embers.transform.rotation = Quaternion.Euler(0, 0, 200);
+                
             }
-            
-            //turn on particle emission
+        }
+    }
+    private void EmitEmbers()
+    {
+        var emission = embers.emission;
+        float embersAmount = 50f;
+
+        emission.rateOverTime = embersAmount;
+
+        if(rb.linearVelocityX > 0.5f|| rb.linearVelocityX < -0.5f)
+        {
+            emission.enabled = true;
+
+            if (isGrounded())
+            {
+                emission.rateOverTime = embersAmount;
+            }
+            else
+            {
+                emission.rateOverTime = 10f;
+            }
         }
         else
         {
-            //turn off particle emission
+            emission.enabled = false;
         }
-
     }
 
     private bool isGrounded()
