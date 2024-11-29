@@ -285,7 +285,13 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      dark_streets1_0: -7062924198160764807
+      dark_streets1_1: 2933585427258603068
+      dark_streets1_2: 949280354309562033
+      dark_streets1_3: 743128347236501439
+      dark_streets1_4: -219106544820823227
+      dark_streets1_5: 9008864825747098041
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
