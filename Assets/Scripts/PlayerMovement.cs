@@ -104,12 +104,12 @@ public class PlayerMovement : MonoBehaviour
 
             //rotation of the embers particle when flipping sprite
             if (isFacingRight){
-                embers.transform.rotation = Quaternion.Euler(0,0,-20);
+                embers.transform.rotation = Quaternion.Euler(0,0,-30);
                 
             }
             if (!isFacingRight)
             {
-                embers.transform.rotation = Quaternion.Euler(0, 0, 200);
+                embers.transform.rotation = Quaternion.Euler(0, 0, 210);
                 
             }
         }
