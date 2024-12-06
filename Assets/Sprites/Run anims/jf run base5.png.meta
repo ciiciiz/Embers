@@ -103,12 +103,12 @@ TextureImporter:
       name: jf run base5_0
       rect:
         serializedVersion: 2
-        x: 24
+        x: 13
         y: 0
-        width: 107
-        height: 166
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        width: 118
+        height: 181
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 7c722d8a83db896429bd6058ee9a8c28
+    spriteID: e7bc36e7171029b4ea5dbf44ee6dd391
     internalID: 0
     vertices: []
     indices: 
