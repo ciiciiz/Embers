@@ -21,7 +21,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private TrailRenderer tr;
     [SerializeField] private ParticleSystem embers;
+    [SerializeField] private Animator animator;
+
+    private string currentAnim;
+    const string Player_Run = "Run";
+    const string Player_Idle = "Idle";
     
+
 
 
     // Update is called once per frame
@@ -35,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
         horizontal = Input.GetAxisRaw("Horizontal");
         Flip();
         EmitEmbers();
+        PlayAnimation();
 
         //jump
         if (Input.GetButtonDown("Jump") && isGrounded())//normal jump
@@ -145,6 +152,24 @@ public class PlayerMovement : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, 0.25f, groundLayer);
     }
 
+    void PlayAnimation()
+    {
+        if (isGrounded() && rb.linearVelocityX!=0f)
+        {
+            ChangeAnimation(Player_Run);
+        }
+        else if(isGrounded() && rb.linearVelocityX == 0f)
+        {
+            ChangeAnimation(Player_Idle);
+        }
+    }
+    void ChangeAnimation(string newAnim)
+    {
+        if (currentAnim == newAnim) return;
+        animator.Play(newAnim);
+        currentAnim = newAnim;
+    }
+
     private IEnumerator Dash()
     {
         canDash = false;
@@ -160,6 +185,8 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(dashingCooldown);
         canDash = true;
     }
+
+
 
 
 }
