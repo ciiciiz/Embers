@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 446e0caf91d1e1b4c96896a2be3cc30c
+guid: 8d05bc905e85f7e4d93331283d7bcd8c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6622711123598265041
-    second: jf run base6_0
+      213: 7084060711741569152
+    second: cable_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: jf run base6_0
+      name: cable_0
       rect:
         serializedVersion: 2
-        x: 13
+        x: 0
         y: 0
-        width: 113
-        height: 181
+        width: 10
+        height: 20
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1da4a14ada898eb50800000000000000
-      internalID: 6622711123598265041
+      spriteID: 08838a23fa3af4260800000000000000
+      internalID: 7084060711741569152
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f748e3af813404f40a26c28cb25c1080
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      jf run base6_0: 6622711123598265041
+      cable_0: 7084060711741569152
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

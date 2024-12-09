@@ -88,7 +88,7 @@ public class PlayerMovement : MonoBehaviour
         }
         if (Input.GetButtonDown("6"))
         {
-            transform.position = new Vector3(152, -28, 0);
+            transform.position = new Vector3(90 -25, 0);
         }
 
     }
