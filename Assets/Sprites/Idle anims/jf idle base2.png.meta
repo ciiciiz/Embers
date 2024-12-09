@@ -103,12 +103,12 @@ TextureImporter:
       name: jf idle base2_0
       rect:
         serializedVersion: 2
-        x: 49
-        y: 9
-        width: 62
-        height: 157
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+        x: 24
+        y: 10
+        width: 107
+        height: 180
+      alignment: 4
+      pivot: {x: 0, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

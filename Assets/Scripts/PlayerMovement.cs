@@ -86,6 +86,10 @@ public class PlayerMovement : MonoBehaviour
         {
             transform.position = new Vector3(-42, -14, 0);
         }
+        if (Input.GetButtonDown("6"))
+        {
+            transform.position = new Vector3(152, -28, 0);
+        }
 
     }
 
@@ -154,13 +158,16 @@ public class PlayerMovement : MonoBehaviour
 
     void PlayAnimation()
     {
-        if (isGrounded() && rb.linearVelocityX!=0f)
-        {
-            ChangeAnimation(Player_Run);
-        }
-        else if(isGrounded() && rb.linearVelocityX == 0f)
-        {
-            ChangeAnimation(Player_Idle);
+        if (isGrounded()) { 
+            if(rb.linearVelocityX < -0.5f || rb.linearVelocityX > 0.5f)
+            {
+             ChangeAnimation(Player_Run);
+            }
+            if (rb.linearVelocityX > -0.3f && rb.linearVelocityX < 0.3f)
+            {
+                ChangeAnimation(Player_Idle);
+            }
+
         }
     }
     void ChangeAnimation(string newAnim)
