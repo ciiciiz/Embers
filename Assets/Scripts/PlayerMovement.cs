@@ -68,27 +68,7 @@ public class PlayerMovement : MonoBehaviour
         //level select (debug/test)
         if (Input.GetButtonDown("1"))
         {
-            transform.position = new Vector3(-5, -3, 0);
-        }
-        if (Input.GetButtonDown("2"))
-        {
-            transform.position = new Vector3(-3, -34, 0);
-        }
-        if (Input.GetButtonDown("3"))
-        {
-            transform.position = new Vector3(44, -22, 0);
-        }
-        if (Input.GetButtonDown("4"))
-        {
-            transform.position = new Vector3(70, 13, 0);
-        }
-        if (Input.GetButtonDown("5"))
-        {
-            transform.position = new Vector3(-42, -14, 0);
-        }
-        if (Input.GetButtonDown("6"))
-        {
-            transform.position = new Vector3(90 -25, 0);
+            transform.position = new Vector3(90, -25, 0);
         }
 
     }
