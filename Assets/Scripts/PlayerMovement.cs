@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using static UnityEngine.ParticleSystem;
+using Unity.VisualScripting;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -22,12 +23,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private TrailRenderer tr;
     [SerializeField] private ParticleSystem embers;
     [SerializeField] private Animator animator;
+    [SerializeField] private CompositeCollider2D groundCol;
 
     private string currentAnim;
     const string Player_Run = "Run";
     const string Player_Idle = "Idle";
-    
+    const string Player_Jump = "jump";
+    const string Player_Falling = "Falling";
+    const string Player_Land = "Land";
 
+    private bool hasLanded = false;
 
 
     // Update is called once per frame
@@ -46,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
         //jump
         if (Input.GetButtonDown("Jump") && isGrounded())//normal jump
         {
+            new WaitForSeconds(2f);
             rb.linearVelocityY = jumpingPower;   
         }
         if (Input.GetButtonUp("Jump") && rb.linearVelocityY > 0f)//jump- but depending on how long space is pressed
@@ -138,18 +144,40 @@ public class PlayerMovement : MonoBehaviour
 
     void PlayAnimation()
     {
-        if (isGrounded()) { 
-            if(rb.linearVelocityX < -0.5f || rb.linearVelocityX > 0.5f)
-            {
-             ChangeAnimation(Player_Run);
-            }
-            if (rb.linearVelocityX > -0.3f && rb.linearVelocityX < 0.3f)
-            {
-                ChangeAnimation(Player_Idle);
-            }
-
+        //jump
+        if (isGrounded() && Input.GetButtonDown("Jump"))
+        {
+            ChangeAnimation(Player_Jump);
+            hasLanded = false;
         }
+
+        //falling
+        if(!isGrounded() && rb.linearVelocityY < 0f)
+        {
+            ChangeAnimation(Player_Falling);
+        }
+
+        //landing
+        if(isGrounded() && hasLanded == false)
+        {
+            ChangeAnimation(Player_Land);
+            hasLanded = true;
+        }
+
+        //run
+        if ((rb.linearVelocityX < -0.5f && isGrounded()) || (rb.linearVelocityX > 0.5f && isGrounded()))
+        {
+            ChangeAnimation(Player_Run);
+        }
+
+        //idle
+        if (rb.linearVelocityX > -0.3f && rb.linearVelocityX < 0.3f && isGrounded())
+        {
+            ChangeAnimation(Player_Idle);
+        }
+
     }
+    
     void ChangeAnimation(string newAnim)
     {
         if (currentAnim == newAnim) return;
