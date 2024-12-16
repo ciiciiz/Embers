@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using System.Collections;
 using static UnityEngine.ParticleSystem;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem.Controls;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -33,6 +34,13 @@ public class PlayerMovement : MonoBehaviour
     const string Player_Land = "Land";
 
     private bool hasLanded = false;
+    private float jumpTimer = 0f;
+    private bool isJumping = false;
+    private int oneJump = 0;
+    private float animLen = 0f;
+
+    public float maxEmbersAmount;
+    public float minEmbersAmount;
 
 
     // Update is called once per frame
@@ -48,11 +56,13 @@ public class PlayerMovement : MonoBehaviour
         EmitEmbers();
         PlayAnimation();
 
-        //jump
+        //jump logics
         if (Input.GetButtonDown("Jump") && isGrounded())//normal jump
         {
             new WaitForSeconds(2f);
-            rb.linearVelocityY = jumpingPower;   
+            rb.linearVelocityY = jumpingPower;
+            isJumping = true;
+            oneJump = 0;     
         }
         if (Input.GetButtonUp("Jump") && rb.linearVelocityY > 0f)//jump- but depending on how long space is pressed
         {
@@ -114,9 +124,10 @@ public class PlayerMovement : MonoBehaviour
     private void EmitEmbers()
     {
         var emission = embers.emission;
-        float embersAmount = 50f;
+        //maxEmbersAmount = 40f;
+        //minEmbersAmount = 10f;
 
-        emission.rateOverTime = embersAmount;
+        emission.rateOverTime = maxEmbersAmount;
 
         if(rb.linearVelocityX > 0.5f|| rb.linearVelocityX < -0.5f)
         {
@@ -124,7 +135,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (isGrounded())
             {
-                emission.rateOverTime = embersAmount;
+                emission.rateOverTime = maxEmbersAmount;
             }
             else
             {
@@ -144,24 +155,40 @@ public class PlayerMovement : MonoBehaviour
 
     void PlayAnimation()
     {
+        //how long since jumping (without hitting ground)
+        jumpTimer += Time.deltaTime;
+        //Debug.Log(jumpTimer); 
+
         //jump
-        if (isGrounded() && Input.GetButtonDown("Jump"))
+        if (isGrounded() && isJumping && oneJump==0 && rb.linearVelocityY >0.5f)
         {
             ChangeAnimation(Player_Jump);
+            oneJump = 1;
             hasLanded = false;
+            jumpTimer = 0f;
+            //Debug.Log("jumped");
         }
 
         //falling
-        if(!isGrounded() && rb.linearVelocityY < 0f)
+        if (!isGrounded() && rb.linearVelocityY < 0f)
         {
             ChangeAnimation(Player_Falling);
         }
 
         //landing
-        if(isGrounded() && hasLanded == false)
+        if (isGrounded() && hasLanded == false && jumpTimer > 0.3f)
         {
-            ChangeAnimation(Player_Land);
+            //Debug.Log(animLen);
+            if (jumpTimer > 0.5f)//has fallen enough to bend knees when landing
+            {
+                ChangeAnimation(Player_Land);
+                //Debug.Log("crunch");
+                
+            }
+            animLen += Time.deltaTime;
             hasLanded = true;
+            isJumping = false;
+            //Debug.Log("landed");
         }
 
         //run
@@ -175,7 +202,6 @@ public class PlayerMovement : MonoBehaviour
         {
             ChangeAnimation(Player_Idle);
         }
-
     }
     
     void ChangeAnimation(string newAnim)
@@ -183,6 +209,7 @@ public class PlayerMovement : MonoBehaviour
         if (currentAnim == newAnim) return;
         animator.Play(newAnim);
         currentAnim = newAnim;
+        //Debug.Log(currentAnim);
     }
 
     private IEnumerator Dash()
