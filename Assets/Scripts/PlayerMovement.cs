@@ -33,11 +33,17 @@ public class PlayerMovement : MonoBehaviour
     const string Player_Falling = "Falling";
     const string Player_Land = "Land";
 
+    private float cayoteTime = 0.2f;
+    private float cayoteTimeCounter;
+
+    private float jumpBufferTime = 0.2f;
+    private float jumpBufferCounter;
+
     private bool hasLanded = false;
     private float jumpTimer = 0f;
     private bool isJumping = false;
     private int oneJump = 0;
-    private float animLen = 0f;
+ 
 
     public float maxEmbersAmount;
     public float minEmbersAmount;
@@ -46,27 +52,50 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isDashing)
-        {
-            return;
-        }
+        //if (isDashing)
+        //{
+        //    return;
+        //}
 
         horizontal = Input.GetAxisRaw("Horizontal");
         Flip();
         EmitEmbers();
         PlayAnimation();
 
+        //cayote time
+        if (isGrounded())
+        {
+            cayoteTimeCounter = cayoteTime;
+        }
+        else
+        {
+            cayoteTimeCounter -= Time.deltaTime;
+        }
+        //input buffer
+        if (Input.GetButtonDown("Jump"))
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+        else
+        {
+            jumpBufferCounter -= Time.deltaTime;
+        }
+
         //jump logics
-        if (Input.GetButtonDown("Jump") && isGrounded())//normal jump
+        if (jumpBufferCounter >0f && cayoteTimeCounter >0f)//normal jump
         {
             new WaitForSeconds(2f);
             rb.linearVelocityY = jumpingPower;
+
+            jumpBufferCounter = 0;
+
             isJumping = true;
             oneJump = 0;     
         }
         if (Input.GetButtonUp("Jump") && rb.linearVelocityY > 0f)//jump- but depending on how long space is pressed
         {
             rb.linearVelocityY *= 0.5f;
+            cayoteTimeCounter = 0f;
         }
 
         //fall quicker
@@ -185,7 +214,7 @@ public class PlayerMovement : MonoBehaviour
                 //Debug.Log("crunch");
                 
             }
-            animLen += Time.deltaTime;
+          
             hasLanded = true;
             isJumping = false;
             //Debug.Log("landed");
