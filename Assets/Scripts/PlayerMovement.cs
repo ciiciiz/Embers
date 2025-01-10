@@ -282,7 +282,7 @@ public class PlayerMovement : MonoBehaviour
             if(oneZip == 0)
             {
                 StartCoroutine(Zipline(true));
-                Debug.Log("zip");
+                //Debug.Log("zip");
             }
             oneZip += 1;
         }
@@ -290,7 +290,7 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.tag == "offZipline")//zip over :(
         {
             StartCoroutine(Zipline(false));
-            Debug.Log("stop zip");
+            //Debug.Log("stop zip");
         }
     }
     IEnumerator Zipline(bool state)
@@ -303,27 +303,30 @@ public class PlayerMovement : MonoBehaviour
             canWalk = false;
 
             Vector3 pos1 = rb.position;
-            pos1.y += 1f;
+            pos1.y += 1.2f;
             Vector3 pos2 = zipEnd.transform.position;
+            pos2.y -= 0.8f;
 
             float zipLength = Vector3.Distance(pos1, pos2);
             float startTime = Time.time;
 
-            while (Vector3.Distance(rb.position, pos2) > 1f)
+            while (Vector3.Distance(rb.position, pos2) > 2f)
             {
-                float zippedSoFar = (Time.time - startTime) * 5f; // Adjust speed factor here
+                float zippedSoFar = (Time.time - startTime) * 10f; // Adjust speed factor here
                 float fractionOfZip = zippedSoFar / zipLength;
 
                 rb.MovePosition(Vector3.Lerp(pos1, pos2, fractionOfZip));
 
+                //Debug.Log("zipping");
                 yield return null;
             }
+            
         }
-        if (!state)
-        {
-            canWalk = true;
-            rb.gravityScale = originalGravity;
-        }
+       
+        canWalk = true;
+        rb.gravityScale = originalGravity;
+        //Debug.Log(rb.gravityScale);
+        
         
         
         //GetComponent<TilemapCollider2D>().enabled = true;
