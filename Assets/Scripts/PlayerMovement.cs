@@ -4,6 +4,9 @@ using System.Collections;
 using static UnityEngine.ParticleSystem;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.UI;
+using System.Runtime.InteropServices.WindowsRuntime;
+using UnityEngine.Tilemaps;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -11,6 +14,11 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 8f;
     public float jumpingPower = 10f;
     private bool isFacingRight = true;
+    private bool canWalk = true;
+
+    private float newPosX;
+    private float newPosY;
+    int oneZip = 0;
 
     private bool canDash = true;
     private bool isDashing;
@@ -25,6 +33,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private ParticleSystem embers;
     [SerializeField] private Animator animator;
     [SerializeField] private CompositeCollider2D groundCol;
+    [SerializeField] private BoxCollider2D zipStart;
+    [SerializeField] private BoxCollider2D zipEnd;
+    [SerializeField] private Tilemap testTilemap;
 
     private string currentAnim;
     const string Player_Run = "Run";
@@ -43,7 +54,6 @@ public class PlayerMovement : MonoBehaviour
     private float jumpTimer = 0f;
     private bool isJumping = false;
     private int oneJump = 0;
- 
 
     public float maxEmbersAmount;
     public float minEmbersAmount;
@@ -82,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //jump logics
-        if (jumpBufferCounter >0f && cayoteTimeCounter >0f)//normal jump
+        if (jumpBufferCounter > 0f && cayoteTimeCounter > 0f)//normal jump
         {
             new WaitForSeconds(2f);
             rb.linearVelocityY = jumpingPower;
@@ -90,7 +100,7 @@ public class PlayerMovement : MonoBehaviour
             jumpBufferCounter = 0;
 
             isJumping = true;
-            oneJump = 0;     
+            oneJump = 0;
         }
         if (Input.GetButtonUp("Jump") && rb.linearVelocityY > 0f)//jump- but depending on how long space is pressed
         {
@@ -105,7 +115,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //dash
-        if(Input.GetKeyDown(KeyCode.LeftShift)&& canDash)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
         {
             StartCoroutine(Dash());
         }
@@ -124,13 +134,17 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
+        if (!canWalk)
+        {
+            return;
+        }
         rb.linearVelocity = new Vector2(horizontal * speed, rb.linearVelocity.y);
 
     }
 
     private void Flip()//changes direction of sprite
     {
-        
+
         if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
         {
             isFacingRight = !isFacingRight;
@@ -139,14 +153,15 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale = localScale;
 
             //rotation of the embers particle when flipping sprite
-            if (isFacingRight){
-                embers.transform.rotation = Quaternion.Euler(0,0,-10);
-                
+            if (isFacingRight)
+            {
+                embers.transform.rotation = Quaternion.Euler(0, 0, -10);
+
             }
             if (!isFacingRight)
             {
                 embers.transform.rotation = Quaternion.Euler(0, 0, 190);
-                
+
             }
         }
     }
@@ -158,7 +173,7 @@ public class PlayerMovement : MonoBehaviour
 
         emission.rateOverTime = maxEmbersAmount;
 
-        if(rb.linearVelocityX > 0.5f|| rb.linearVelocityX < -0.5f)
+        if (rb.linearVelocityX > 0.5f || rb.linearVelocityX < -0.5f)
         {
             emission.enabled = true;
 
@@ -189,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
         //Debug.Log(jumpTimer); 
 
         //jump
-        if (isGrounded() && isJumping && oneJump==0 && rb.linearVelocityY >0.5f)
+        if (isGrounded() && isJumping && oneJump == 0 && rb.linearVelocityY > 0.5f)
         {
             ChangeAnimation(Player_Jump);
             oneJump = 1;
@@ -199,7 +214,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //falling
-        if (!isGrounded() && rb.linearVelocityY < 0f)
+        if (!isGrounded() && rb.linearVelocityY < 0f || canWalk == false)
         {
             ChangeAnimation(Player_Falling);
         }
@@ -208,13 +223,13 @@ public class PlayerMovement : MonoBehaviour
         if (isGrounded() && hasLanded == false && jumpTimer > 0.3f)
         {
             //Debug.Log(animLen);
-            if (jumpTimer > 0.5f)//has fallen enough to bend knees when landing
+            if (jumpTimer > 0.5f )//has fallen enough to bend knees when landing
             {
                 ChangeAnimation(Player_Land);
                 //Debug.Log("crunch");
-                
+
             }
-          
+
             hasLanded = true;
             isJumping = false;
             //Debug.Log("landed");
@@ -231,8 +246,9 @@ public class PlayerMovement : MonoBehaviour
         {
             ChangeAnimation(Player_Idle);
         }
+       
     }
-    
+
     void ChangeAnimation(string newAnim)
     {
         if (currentAnim == newAnim) return;
@@ -257,7 +273,66 @@ public class PlayerMovement : MonoBehaviour
         canDash = true;
     }
 
+ 
+    //on trigger zipline
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "onZipline")//zip time !!
+        {
+            if(oneZip == 0)
+            {
+                StartCoroutine(Zipline(true));
+                Debug.Log("zip");
+            }
+            oneZip += 1;
+        }
+
+        if (other.gameObject.tag == "offZipline")//zip over :(
+        {
+            StartCoroutine(Zipline(false));
+            Debug.Log("stop zip");
+        }
+    }
+    IEnumerator Zipline(bool state)
+    {
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+
+        if (state)
+        {
+            canWalk = false;
+
+            Vector3 pos1 = rb.position;
+            pos1.y += 1f;
+            Vector3 pos2 = zipEnd.transform.position;
+
+            float zipLength = Vector3.Distance(pos1, pos2);
+            float startTime = Time.time;
+
+            while (Vector3.Distance(rb.position, pos2) > 1f)
+            {
+                float zippedSoFar = (Time.time - startTime) * 5f; // Adjust speed factor here
+                float fractionOfZip = zippedSoFar / zipLength;
+
+                rb.MovePosition(Vector3.Lerp(pos1, pos2, fractionOfZip));
+
+                yield return null;
+            }
+        }
+        if (!state)
+        {
+            canWalk = true;
+            rb.gravityScale = originalGravity;
+        }
+        
+        
+        //GetComponent<TilemapCollider2D>().enabled = true;
+
+    }
 
 
 
-}
+}  
+
+
+
