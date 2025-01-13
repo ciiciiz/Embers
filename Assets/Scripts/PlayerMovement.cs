@@ -293,7 +293,7 @@ public class PlayerMovement : MonoBehaviour
             //Debug.Log("stop zip");
         }
     }
-    IEnumerator Zipline(bool state)
+    IEnumerator Zipline(bool state)//idk what im doing anymore
     {
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
@@ -312,7 +312,7 @@ public class PlayerMovement : MonoBehaviour
 
             while (Vector3.Distance(rb.position, pos2) > 2f)
             {
-                float zippedSoFar = (Time.time - startTime) * 10f; // Adjust speed factor here
+                float zippedSoFar = (Time.time - startTime) * 10f; // Adjust speed factor
                 float fractionOfZip = zippedSoFar / zipLength;
 
                 rb.MovePosition(Vector3.Lerp(pos1, pos2, fractionOfZip));
