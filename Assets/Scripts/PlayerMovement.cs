@@ -305,7 +305,7 @@ public class PlayerMovement : MonoBehaviour
             Vector3 pos1 = rb.position;
             pos1.y += 1.2f;
             Vector3 pos2 = zipEnd.transform.position;
-            pos2.y -= 0.8f;
+            //pos2.y -= 0.8f;
 
             float zipLength = Vector3.Distance(pos1, pos2);
             float startTime = Time.time;
