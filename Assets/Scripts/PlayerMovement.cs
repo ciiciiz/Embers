@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     private float newPosX;
     private float newPosY;
-    int oneZip = 0;
+  
 
     private bool canDash = true;
     private bool isDashing;
@@ -33,8 +33,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private ParticleSystem embers;
     [SerializeField] private Animator animator;
     [SerializeField] private CompositeCollider2D groundCol;
-    [SerializeField] private BoxCollider2D zipStart;
-    [SerializeField] private BoxCollider2D zipEnd;
+    [SerializeField] private BoxCollider2D zipStart1;
+    [SerializeField] private BoxCollider2D zipEnd1;
+    [SerializeField] private BoxCollider2D zipStart2;
+    [SerializeField] private BoxCollider2D zipEnd2;
     [SerializeField] private Tilemap testTilemap;
 
     private string currentAnim;
@@ -57,6 +59,12 @@ public class PlayerMovement : MonoBehaviour
 
     public float maxEmbersAmount;
     public float minEmbersAmount;
+
+    //zipline
+    Vector3 pos1;
+    Vector3 pos2;
+    int oneZip = 0;
+    int zipNum = 0;
 
 
     // Update is called once per frame
@@ -282,15 +290,18 @@ public class PlayerMovement : MonoBehaviour
             if(oneZip == 0)
             {
                 StartCoroutine(Zipline(true));
-                //Debug.Log("zip");
+                Debug.Log("zip");
+                zipNum += 1;
+                oneZip = 1;
             }
-            oneZip += 1;
+            
         }
 
         if (other.gameObject.tag == "offZipline")//zip over :(
         {
             StartCoroutine(Zipline(false));
-            //Debug.Log("stop zip");
+            Debug.Log("stop zip");
+            oneZip = 0;
         }
     }
     IEnumerator Zipline(bool state)//idk what im doing anymore
@@ -302,11 +313,22 @@ public class PlayerMovement : MonoBehaviour
         {
             canWalk = false;
 
-            Vector3 pos1 = rb.position;
-            pos1.y += 1.2f;
-            Vector3 pos2 = zipEnd.transform.position;
-            //pos2.y -= 0.8f;
-
+            if (zipNum == 0)//zipline 1
+            {
+                pos1 = rb.position;
+                pos1.y += 1.2f;//offset
+                pos2 = zipEnd1.transform.position;
+                //pos2.y -= 0.8f;//offset
+ 
+            }
+            if (zipNum == 1)//zipline 2
+            {
+                pos1 = rb.position;
+                pos1.y += 1.2f;
+                pos2 = zipEnd2.transform.position;
+                //pos2.y -= 0.8f;
+  
+            }
             float zipLength = Vector3.Distance(pos1, pos2);
             float startTime = Time.time;
 
@@ -317,10 +339,11 @@ public class PlayerMovement : MonoBehaviour
 
                 rb.MovePosition(Vector3.Lerp(pos1, pos2, fractionOfZip));
 
-                //Debug.Log("zipping");
+                Debug.Log("zipping " + zipNum);
                 yield return null;
             }
-            
+
+
         }
        
         canWalk = true;
