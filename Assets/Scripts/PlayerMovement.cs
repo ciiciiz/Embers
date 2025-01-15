@@ -7,6 +7,7 @@ using UnityEngine.InputSystem.Controls;
 using UnityEngine.UI;
 using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine.Tilemaps;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     public float jumpingPower = 10f;
     private bool isFacingRight = true;
     private bool canWalk = true;
+    private bool zipLining = false;
 
     private float newPosX;
     private float newPosY;
@@ -32,12 +34,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private TrailRenderer tr;
     [SerializeField] private ParticleSystem embers;
     [SerializeField] private Animator animator;
-    [SerializeField] private CompositeCollider2D groundCol;
-    [SerializeField] private BoxCollider2D zipStart1;
+    [SerializeField] private CompositeCollider2D groundCol;  
     [SerializeField] private BoxCollider2D zipEnd1;
-    [SerializeField] private BoxCollider2D zipStart2;
     [SerializeField] private BoxCollider2D zipEnd2;
-    [SerializeField] private Tilemap testTilemap;
+    [SerializeField] private BoxCollider2D zipEnd3;
+    [SerializeField] private AudioSource music;
 
     private string currentAnim;
     const string Player_Run = "Run";
@@ -52,10 +53,13 @@ public class PlayerMovement : MonoBehaviour
     private float jumpBufferTime = 0.2f;
     private float jumpBufferCounter;
 
-    private bool hasLanded = false;
+    //private bool hasLanded;
     private float jumpTimer = 0f;
     private bool isJumping = false;
     private int oneJump = 0;
+
+    //private bool lastCheck = false;
+    //private bool landed= false;
 
     public float maxEmbersAmount;
     public float minEmbersAmount;
@@ -65,6 +69,8 @@ public class PlayerMovement : MonoBehaviour
     Vector3 pos2;
     int oneZip = 0;
     int zipNum = 0;
+
+
 
 
     // Update is called once per frame
@@ -142,12 +148,12 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
-        if (!canWalk)
+        if (canWalk)
         {
-            return;
-        }
-        rb.linearVelocity = new Vector2(horizontal * speed, rb.linearVelocity.y);
+             rb.linearVelocity = new Vector2(horizontal * speed, rb.linearVelocity.y);
 
+        }
+       
     }
 
     private void Flip()//changes direction of sprite
@@ -205,7 +211,25 @@ public class PlayerMovement : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, 0.25f, groundLayer);
     }
 
-    void PlayAnimation()
+    //private bool LandedJustNow()
+    //{
+    //     //lastCheck
+    //     // newCheck
+    //     //if is on ground but lastcheck is false = has just landed
+    //     if(isGrounded() && lastCheck == false)
+    //    {
+    //        landed = true;
+    //    }
+    //    else
+    //    {
+    //        landed = false;          
+    //    }
+    //    lastCheck = landed;
+
+    //    return landed;
+    //}
+
+void PlayAnimation()
     {
         //how long since jumping (without hitting ground)
         jumpTimer += Time.deltaTime;
@@ -216,32 +240,31 @@ public class PlayerMovement : MonoBehaviour
         {
             ChangeAnimation(Player_Jump);
             oneJump = 1;
-            hasLanded = false;
+            //hasLanded = false;
             jumpTimer = 0f;
             //Debug.Log("jumped");
         }
 
         //falling
-        if (!isGrounded() && rb.linearVelocityY < 0f || canWalk == false)
+        if (!isGrounded() && rb.linearVelocityY < 0f || canWalk == false && zipLining == true)
         {
             ChangeAnimation(Player_Falling);
         }
 
-        //landing
-        if (isGrounded() && hasLanded == false && jumpTimer > 0.3f)
-        {
-            //Debug.Log(animLen);
-            if (jumpTimer > 0.5f )//has fallen enough to bend knees when landing
-            {
-                ChangeAnimation(Player_Land);
-                //Debug.Log("crunch");
+        ////landing
+        //if (LandedJustNow() && hasLanded==false && jumpTimer>=1f)
+        //{ 
+        //    ChangeAnimation(Player_Land);
+        //    Debug.Log("landed");
 
-            }
-
-            hasLanded = true;
-            isJumping = false;
-            //Debug.Log("landed");
-        }
+        //    hasLanded = true;
+        //    //if (jumpTimer > 0.5f )//has fallen enough to bend knees when landing
+        //    //{     
+        //    //    //Debug.Log("crunch");
+        //    //}
+           
+        //    //isJumping = false;          
+        //}
 
         //run
         if ((rb.linearVelocityX < -0.5f && isGrounded()) || (rb.linearVelocityX > 0.5f && isGrounded()))
@@ -253,6 +276,7 @@ public class PlayerMovement : MonoBehaviour
         if (rb.linearVelocityX > -0.3f && rb.linearVelocityX < 0.3f && isGrounded())
         {
             ChangeAnimation(Player_Idle);
+            //Debug.Log("idling");
         }
        
     }
@@ -282,9 +306,13 @@ public class PlayerMovement : MonoBehaviour
     }
 
  
-    //on trigger zipline
+    //collision triggers
     private void OnTriggerEnter2D(Collider2D other)
     {
+
+
+
+        //zipLines
         if (other.gameObject.tag == "onZipline")//zip time !!
         {
             if(oneZip == 0)
@@ -293,18 +321,25 @@ public class PlayerMovement : MonoBehaviour
                 Debug.Log("zip");
                 zipNum += 1;
                 oneZip = 1;
-            }
-            
+            }   
         }
-
         if (other.gameObject.tag == "offZipline")//zip over :(
         {
             StartCoroutine(Zipline(false));
             Debug.Log("stop zip");
             oneZip = 0;
         }
+
+
+        //next scene(end scene)
+
+        if (other.gameObject.tag == ("newScene"))
+        {
+            StartCoroutine(EndScene());
+        }
+
     }
-    IEnumerator Zipline(bool state)//idk what im doing anymore
+    IEnumerator Zipline(bool state)
     {
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
@@ -312,23 +347,25 @@ public class PlayerMovement : MonoBehaviour
         if (state)
         {
             canWalk = false;
+            zipLining = true;
+
+            pos1 = rb.position;
+            pos1.y += 1.2f;//offset
 
             if (zipNum == 0)//zipline 1
-            {
-                pos1 = rb.position;
-                pos1.y += 1.2f;//offset
+            {               
                 pos2 = zipEnd1.transform.position;
-                //pos2.y -= 0.8f;//offset
- 
             }
             if (zipNum == 1)//zipline 2
             {
-                pos1 = rb.position;
-                pos1.y += 1.2f;
                 pos2 = zipEnd2.transform.position;
-                //pos2.y -= 0.8f;
-  
             }
+            if (zipNum == 2)//zipline 3
+            {
+                pos2 = zipEnd3.transform.position;//wants to go to zipend1?????
+            }
+
+            pos2.y -= 0.8f;//offset
             float zipLength = Vector3.Distance(pos1, pos2);
             float startTime = Time.time;
 
@@ -339,7 +376,8 @@ public class PlayerMovement : MonoBehaviour
 
                 rb.MovePosition(Vector3.Lerp(pos1, pos2, fractionOfZip));
 
-                Debug.Log("zipping " + zipNum);
+                //Debug.Log("zipping " + zipNum);
+                //Debug.Log("zipping to " + pos2);
                 yield return null;
             }
 
@@ -347,6 +385,7 @@ public class PlayerMovement : MonoBehaviour
         }
        
         canWalk = true;
+        zipLining = false;
         rb.gravityScale = originalGravity;
         //Debug.Log(rb.gravityScale);
         
@@ -356,7 +395,18 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
+    IEnumerator EndScene()
+    {
+        canWalk = false;
+        while(music.volume > 0f)
+        {
+            music.volume -= 0.01f;
+            yield return new WaitForSeconds(0.1f);
 
+        }
+        SceneManager.LoadScene("Endingcutscene");
+        
+    }
 
 }  
 

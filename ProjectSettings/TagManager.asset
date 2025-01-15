@@ -6,6 +6,7 @@ TagManager:
   tags:
   - onZipline
   - offZipline
+  - newScene
   layers:
   - Default
   - TransparentFX
