@@ -18,10 +18,6 @@ public class PlayerMovement : MonoBehaviour
     private bool canWalk = true;
     private bool zipLining = false;
 
-    private float newPosX;
-    private float newPosY;
-  
-
     private bool canDash = true;
     private bool isDashing;
     private float dashingPower = 16f;
@@ -39,6 +35,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private BoxCollider2D zipEnd2;
     [SerializeField] private BoxCollider2D zipEnd3;
     [SerializeField] private AudioSource music;
+    [SerializeField] private AudioSource soundEffect;
+    [SerializeField] private AudioClip steps;
+    [SerializeField] private AudioClip jump;
+    [SerializeField] private AudioClip land;
 
     private string currentAnim;
     const string Player_Run = "Run";
@@ -69,6 +69,8 @@ public class PlayerMovement : MonoBehaviour
     Vector3 pos2;
     int oneZip = 0;
     int zipNum = 0;
+
+    private float stepDelay = 0f;
 
 
 
@@ -234,6 +236,7 @@ void PlayAnimation()
         //how long since jumping (without hitting ground)
         jumpTimer += Time.deltaTime;
         //Debug.Log(jumpTimer); 
+        
 
         //jump
         if (isGrounded() && isJumping && oneJump == 0 && rb.linearVelocityY > 0.5f)
@@ -243,6 +246,7 @@ void PlayAnimation()
             //hasLanded = false;
             jumpTimer = 0f;
             //Debug.Log("jumped");
+            PlaySound(jump);
         }
 
         //falling
@@ -269,7 +273,14 @@ void PlayAnimation()
         //run
         if ((rb.linearVelocityX < -0.5f && isGrounded()) || (rb.linearVelocityX > 0.5f && isGrounded()))
         {
+            stepDelay += Time.deltaTime;
             ChangeAnimation(Player_Run);
+            if(stepDelay > 0.4f)
+            {
+                 PlaySound(steps);
+                stepDelay = 0f;
+            }
+           
         }
 
         //idle
@@ -287,6 +298,23 @@ void PlayAnimation()
         animator.Play(newAnim);
         currentAnim = newAnim;
         //Debug.Log(currentAnim);
+    }
+
+    void PlaySound(AudioClip soundClip)
+    {
+        soundEffect.clip = soundClip;
+        if (soundClip == steps)
+        {
+            soundEffect.volume = 0.3f;
+            soundEffect.pitch = 1f;
+        }
+        if(soundClip == jump)
+        {
+            soundEffect.volume = 0.02f;
+            soundEffect.pitch = 0.6f;
+        }
+        soundEffect.Play();
+        Debug.Log("sound played: " + soundClip.name);
     }
 
     private IEnumerator Dash()
